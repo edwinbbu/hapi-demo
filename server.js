@@ -5,13 +5,16 @@ const server = Hapi.server({
   host: "localhost",
   port: 8000
 });
-
+server.ext('onRequest',(request,h)=>{
+  console.log('Request received:',request.path);
+  return h.continue;
+})
 // Add the route
 server.route({
   method: "GET",
   path: "/",
   handler: function(request, h) {
-    return "hello world";
+    return h.response("hello world");
   },
   config: {
     state: {
