@@ -1,20 +1,22 @@
 const Hapi = require("hapi");
+const Inert = require("inert");
 
 // Create a server with a host and port
 const server = Hapi.server({
   host: "localhost",
   port: 8000
 });
-server.ext('onRequest',(request,h)=>{
-  console.log('Request received:',request.path);
+server.ext("onRequest", (request, h) => {
+  console.log("Request received:", request.path);
   return h.continue;
-})
+});
+
 // Add the route
 server.route({
   method: "GET",
   path: "/",
   handler: function(request, h) {
-    return h.response("hello world");
+    return h.file("./templates/index.html");
   },
   config: {
     state: {
@@ -27,6 +29,22 @@ server.route({
 // Start the server
 const start = async function() {
   try {
+    await server.register({
+      plugin: Inert
+    });
+
+    //Serving Static files
+    server.route({
+      method: "GET",
+      path: "/assets/{path*}",
+      handler: {
+        directory: {
+          path: "./public",
+          listing: false
+        }
+      }
+    });
+
     await server.start();
   } catch (err) {
     console.log(err);
