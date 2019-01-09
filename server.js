@@ -26,6 +26,38 @@ server.route({
   }
 });
 
+server.route(
+  {
+    method: "GET",
+    path: "/cards/new",
+    handler: function(request, h) {
+      return h.file("./templates/new.html");
+    },
+    config: {
+      state: {
+        parse: true,
+        failAction: "log"
+      }
+    }
+  }
+);
+
+server.route(
+  {
+    method: "POST",
+    path: "/cards/new",
+    handler: function(request, h) {
+      console.log("inside post");
+      return h.redirect("/cards");
+    },
+    config: {
+      state: {
+        parse: true,
+        failAction: "log"
+      }
+    }
+  }
+)
 // Start the server
 const start = async function() {
   try {
@@ -41,6 +73,12 @@ const start = async function() {
         directory: {
           path: "./public",
           listing: false
+        }
+      },
+      config: {
+        state: {
+          parse: true,
+          failAction: "log"
         }
       }
     });
