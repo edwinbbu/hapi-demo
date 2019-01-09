@@ -1,6 +1,6 @@
 const Hapi = require("hapi");
 const Inert = require("inert");
-
+const uuid = require("uuid");
 var cards = {}
 
 // Create a server with a host and port
@@ -99,4 +99,10 @@ function newCardHandler(request, h){
     console.log("inside post");
     return h.redirect("/cards");
   }
+}
+
+function saveCard(card){
+  let id = uuid.v1();
+  card.id = id;
+  cards[id] = card;
 }
