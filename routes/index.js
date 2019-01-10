@@ -1,6 +1,6 @@
 const uuid = require("uuid");
-
-var cards = {};
+const fs = require("fs");
+var cards = loadCard();
 
 module.exports = [
   //index page
@@ -34,7 +34,7 @@ module.exports = [
     method: "GET",
     path: "/cards",
     handler: function(request, h) {
-      return h.view("cards");
+      return h.view("cards", {cards:cards});
     },
     config: {
       state: {
@@ -46,7 +46,7 @@ module.exports = [
 
   //Delete Card
   {
-    path: "/card/{id}",
+    path: "/cards/{id}",
     method: "DELETE",
     handler: deleteCardHandler
   }
@@ -81,4 +81,10 @@ function deleteCardHandler(request, h) {
   delete cards[request.params.id];
   var response = h.response("Successfully Deleted item");
   return response;
+}
+
+function loadCard() {
+  let file = fs.readFileSync("./cards.json");
+  let json = JSON.parse(file.toString());
+  return json;
 }
