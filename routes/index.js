@@ -1,6 +1,12 @@
 const uuid = require("uuid");
 const fs = require("fs");
 var cards = loadCard();
+var configuration = {
+  state: {
+    parse: true,
+    failAction: "log"
+  }
+};
 
 module.exports = [
   //index page
@@ -10,12 +16,7 @@ module.exports = [
     handler: function(request, h) {
       return h.file("./templates/index.html");
     },
-    config: {
-      state: {
-        parse: true,
-        failAction: "log"
-      }
-    }
+    config: configuration
   },
 
   //new card route
@@ -23,38 +24,30 @@ module.exports = [
     method: ["GET", "POST"],
     path: "/cards/new",
     handler: newCardHandler,
-    config: {
-      state: {
-        parse: true,
-        failAction: "log"
-      }
-    }
+    config: configuration
   },
+
   {
     method: "GET",
     path: "/cards",
     handler: function(request, h) {
-      return h.view("cards", {cards:cards});
+      return h.view("cards", { cards: cards });
     },
-    config: {
-      state: {
-        parse: true,
-        failAction: "log"
-      }
-    }
+    config: configuration
   },
 
   //Delete Card
   {
     path: "/cards/{id}",
     method: "DELETE",
-    handler: deleteCardHandler
+    handler: deleteCardHandler,
+    config: configuration
   }
 ];
 
 function newCardHandler(request, h) {
   if (request.method === "get") {
-    return h.file("./templates/new.html");
+    return h.view("new", { card_images: mapImages() });
   } else {
     console.log("inside post");
     var card = {
@@ -86,5 +79,10 @@ function deleteCardHandler(request, h) {
 function loadCard() {
   let file = fs.readFileSync("./cards.json");
   let json = JSON.parse(file.toString());
+  return json;
+}
+
+function mapImages() {
+  let json = fs.readdirSync("./public/images/cards");
   return json;
 }
