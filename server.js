@@ -9,15 +9,9 @@ const server = Hapi.server({
   port: 8000
 });
 
-server.ext("onRequest", (request, h) => {
-  console.log("Request received:", request.path);
-  return h.continue;
-});
-
 // Start the server
 const start = async function() {
   try {
-
     await server.register([Inert.plugin, Vision.plugin]);
     // Initializing handlebars
     server.views({
@@ -44,8 +38,20 @@ const start = async function() {
       }
     });
 
+    server.ext("onRequest", (request, h) => {
+      console.log("Request received:", request.path);
+      return h.continue;
+    });
+
+    server.ext("onPreResponse", function(request, h) {
+      if (request.response.isBoom) {
+        return h.view("error", request.response);
+      }
+      return h.continue;
+    });
+
     //All routes
-    var routes = require('./routes');
+    var routes = require("./routes");
     server.route(routes);
 
     await server.start();

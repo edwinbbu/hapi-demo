@@ -12,6 +12,8 @@
   "license": "ISC",
   "dependencies": {
     "boom": "^7.3.0",
+    "good": "^8.1.1",
+    "good-file": "^6.0.1",
     "handlebars": "^4.0.12",
     "hapi": "^17.8.1",
     "inert": "^5.1.2",
