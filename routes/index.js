@@ -1,7 +1,7 @@
 const uuid = require("uuid");
 const fs = require("fs");
 const Joi = require("joi");
-
+const Boom = require('boom');
 var cards = loadCard();
 
 var configuration = {
@@ -38,16 +38,36 @@ module.exports = [
     path: "/",
     handler: function(request, h) {
       return h.file("./templates/index.html");
-    },
-    config: configuration
+    }
   },
-
   //new card route
   {
-    method: ["GET", "POST"],
+    method: "GET",
+    path: "/cards/new",
+    handler: function(request, h) {
+      return h.view("new", { card_images: mapImages() });
+    },
+    options: {
+      state: {
+        parse: true,
+        failAction: "log"
+      }
+    }
+  },
+  {
+    method: "POST",
     path: "/cards/new",
     handler: newCardHandler,
-    config: configuration
+    options: {
+      state: {
+        parse: true,
+        failAction: "log"
+      },
+      validate: {
+        payload: cardSchema,
+        failAction: handleError
+      }
+    }
   },
 
   {
@@ -70,28 +90,17 @@ module.exports = [
 ];
 
 function newCardHandler(request, h) {
-  if (request.method === "get") {
-    return h.view("new", { card_images: mapImages() });
-  } else {
-    console.log("inside post");
-    console.log("payload:", request.payload);
-    const {err, value} = Joi.validate(request.payload, cardSchema); //(err, val) => {
-      if (err) {
-        return h.response("Validation error");
-      } else {
-        let card = {
-          name: request.payload.name,
-          recipient_email: request.payload.recipient_email,
-          sender_name: request.payload.sender_name,
-          sender_email: request.payload.sender_email,
-          card_image: request.payload.card_image
-        };
-        saveCard(card);
-        console.log(cards);
-        return h.redirect("/cards");
-      }
-    // });
-  }
+  console.log("inside post");
+  let card = {
+    name: request.payload.name,
+    recipient_email: request.payload.recipient_email,
+    sender_name: request.payload.sender_name,
+    sender_email: request.payload.sender_email,
+    card_image: request.payload.card_image
+  };
+  saveCard(card);
+  console.log(cards);
+  return h.redirect("/cards");
 }
 
 function saveCard(card) {
@@ -116,4 +125,9 @@ function loadCard() {
 function mapImages() {
   let json = fs.readdirSync("./public/images/cards");
   return json;
+}
+
+function handleError(request, h, err) {
+    console.log("err:",err.details);
+    throw Boom.badRequest(err.details[0].message);
 }
