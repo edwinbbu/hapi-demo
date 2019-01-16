@@ -9,10 +9,51 @@ const server = Hapi.server({
   port: 8000
 });
 
+const options = {
+  ops: {
+    interval: 1000
+  },
+  reporters: {
+    myConsoleReporter: [
+      {
+        module: "good-squeeze",
+        name: "Squeeze",
+        args: [{ log: "*", response: "*" }]
+      },
+      {
+        module: "good-console"
+      },
+      "stdout"
+    ],
+    myFileReporter: [
+      {
+        module: "good-squeeze",
+        name: "Squeeze",
+        args: [{ ops: "*" }]
+      },
+      {
+        module: "good-squeeze",
+        name: "SafeJson"
+      },
+      {
+        module: "good-file",
+        args: ["./test/fixtures/awesome_log"]
+      }
+    ]
+  }
+};
+
 // Start the server
 const start = async function() {
   try {
-    await server.register([Inert.plugin, Vision.plugin]);
+    await server.register([
+      Inert.plugin,
+      Vision.plugin,
+      {
+        plugin: require("good"),
+        options
+      }
+    ]);
     // Initializing handlebars
     server.views({
       engines: { html: Handlebars },
