@@ -9,40 +9,6 @@ const server = Hapi.server({
   port: 8000
 });
 
-const options = {
-  ops: {
-    interval: 1000
-  },
-  reporters: {
-    myConsoleReporter: [
-      {
-        module: "good-squeeze",
-        name: "Squeeze",
-        args: [{ log: "*", response: "*" }]
-      },
-      {
-        module: "good-console"
-      },
-      "stdout"
-    ],
-    myFileReporter: [
-      {
-        module: "good-squeeze",
-        name: "Squeeze",
-        args: [{ ops: "*" }]
-      },
-      {
-        module: "good-squeeze",
-        name: "SafeJson"
-      },
-      {
-        module: "good-file",
-        args: ["./test/fixtures/awesome_log"]
-      }
-    ]
-  }
-};
-
 // Start the server
 const start = async function() {
   try {
@@ -50,33 +16,15 @@ const start = async function() {
       Inert.plugin,
       Vision.plugin,
       {
-        plugin: require("good"),
-        options
+        plugin: require("hapi-auth-cookie")
       }
     ]);
+
     // Initializing handlebars
     server.views({
       engines: { html: Handlebars },
       relativeTo: __dirname,
       path: "./templates"
-    });
-
-    // Serving Static files
-    server.route({
-      method: "GET",
-      path: "/assets/{path*}",
-      handler: {
-        directory: {
-          path: "./public",
-          listing: false
-        }
-      },
-      config: {
-        state: {
-          parse: true,
-          failAction: "log"
-        }
-      }
     });
 
     server.ext("onRequest", (request, h) => {
