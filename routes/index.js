@@ -1,6 +1,7 @@
 var card = require("./card");
-
+var auth = require("./auth");
 var configuration = {
+  auth: false,
   state: {
     parse: true,
     failAction: "log"
@@ -31,4 +32,4 @@ var indexRouter = [
   }
 ];
 
-module.exports = indexRouter.concat(card);
+module.exports = indexRouter.concat(card, auth);

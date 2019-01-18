@@ -20,6 +20,12 @@ const start = async function() {
       }
     ]);
 
+    server.auth.strategy("session", "cookie", {
+      password: "password",
+      redirectTo: "/login",
+      isSecure: false
+    });
+    server.auth.default("session");
     // Initializing handlebars
     server.views({
       engines: { html: Handlebars },
