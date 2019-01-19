@@ -26,19 +26,18 @@ userStore.createUser = (name, email, password, callback) => {
   });
 };
 
-userStore.validateUser = (email, password, callback) => {
+userStore.validateUser = async (email, password) => {
   let user = userStore.users[email];
   console.log("user:", user);
   if (!user) {
-    return callback(Boom.notFound("User does not exist."));
+    return { error: Boom.notFound("User does not exist.") };
   }
-  bcrypt.compare(password, user.passwordHash, (err, isValid) => {
-    if (!isValid) {
-      callback(Boom.unauthorized("Password does not match"));
-    } else {
-      callback(null, user);
-    }
-  });
+  let isValid = await bcrypt.compare(password, user.passwordHash);
+  if (!isValid) {
+    return { error: Boom.unauthorized("Password does not match") };
+  } else {
+    return { user: user };
+  }
 };
 
 module.exports = { userStore };

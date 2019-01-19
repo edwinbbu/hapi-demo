@@ -49,18 +49,22 @@ module.exports = [
   }
 ];
 
-function loginHandler(request, h) {
+async function loginHandler(request, h) {
   console.log(request.payload);
-  userStore.validateUser(
+  let result = await userStore.validateUser(
     request.payload.email,
-    request.payload.password,
-    (err, user) => {
-      if (user) {
-        console.log("inside:", user);
-        request.cookieAuth.set(user);
-        return h.redirect("/cards");
-      }
-    }
+    request.payload.password
   );
+  console.log("r:", result);
+  if (result.error) {
+    throw result.error;
+  }
+  if (result.user) {
+    console.log("inside:", result.user);
+    request.cookieAuth.set(result.user);
+    // console.log("h:", h);
+    // return h.file("./templates/login.html");
+    return h.redirect("/cards");
+  }
 }
 function registerHandler(request, h) {}

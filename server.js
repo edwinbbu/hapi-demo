@@ -21,7 +21,7 @@ const start = async function() {
     ]);
 
     server.auth.strategy("session", "cookie", {
-      password: "password",
+      password: "$2b$10$elvwU5GPclitQgrXHRHJamnBIS0my8tdManxib4hY/ZNm9UUA52eC",
       redirectTo: "/login",
       isSecure: false
     });
