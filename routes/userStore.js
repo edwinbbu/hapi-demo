@@ -8,22 +8,26 @@ userStore.initialize = function() {
   userStore.createUser("Edwin", "edwinbbu@gmail.com", "password");
 };
 
-userStore.createUser = (name, email, password, callback) => {
-  bcrypt.genSalt(10, (err, salt) => {
-    bcrypt.hash(password, salt, (err, hash) => {
-      let user = {
-        name: name,
-        email: email,
-        passwordHash: hash
-      };
-      if (userStore.users[email]) {
-        callback(Boom.conflict("Email already exists.Please log in"));
-      } else {
-        userStore.users[email] = user;
-        if (callback) callback();
-      }
+userStore.createUser = async (name, email, password) => {
+  const saltRounds = 10;
+
+  const hashedPassword = await new Promise((resolve, reject) => {
+    bcrypt.hash(password, saltRounds, function(err, hash) {
+      if (err) reject(err);
+      resolve(hash);
     });
   });
+  let user = {
+    name: name,
+    email: email,
+    passwordHash: hashedPassword
+  };
+  if (userStore.users[email]) {
+    return Boom.conflict("Email already exists.Please log in");
+  } else {
+    userStore.users[email] = user;
+    return;
+  }
 };
 
 userStore.validateUser = async (email, password) => {

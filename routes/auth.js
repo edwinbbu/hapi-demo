@@ -67,4 +67,12 @@ async function loginHandler(request, h) {
     return h.redirect("/cards");
   }
 }
-function registerHandler(request, h) {}
+function registerHandler(request, h) {
+  userStore.createUser(
+    request.payload.name,
+    request.payload.email,
+    request.payload.password
+  );
+  console.log(userStore.users);
+  return h.redirect("/login");
+}
